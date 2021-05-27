@@ -133,6 +133,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const modalTimerId = setTimeout(openModal, 5000);
 
-	const currentScroll = document.documentElement,
-		bla
+	const currentScroll = document.documentElement
 });
