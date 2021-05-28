@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	//Timer
 
-	const deadline = '2021-04-31';
+	const deadline = '2021-12-31';
 
 	function getTimeRemaining(endTime) {
 		const t = Date.parse(endTime) - Date.parse(new Date()),
@@ -106,12 +106,37 @@ document.addEventListener('DOMContentLoaded', () => {
 		modal.classList.add('show', 'fade');
 		modal.classList.remove('hide');
 		document.body.style.overflow = 'hidden';
+		document.querySelector('.wrapper').style.paddingRight = getScrollbarWidth() + 'px';
 		clearInterval(modalTimerId);
 	}
 	const closeModal = () => {
 		modal.classList.remove('show', 'fade');
 		modal.classList.add('hide');
+		document.querySelector('.wrapper').style.paddingRight = 0;
 		document.body.style.overflow = '';
+	}
+
+	function getScrollbarWidth() {
+
+		// Creating invisible container
+		const outer = document.createElement('div');
+		outer.style.visibility = 'hidden';
+		outer.style.overflow = 'scroll'; // forcing scrollbar to appear
+		outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
+		document.body.appendChild(outer);
+
+		// Creating inner element and placing it in the container
+		const inner = document.createElement('div');
+		outer.appendChild(inner);
+
+		// Calculating difference between container's full width and the child width
+		const scrollbarWidth = (outer.offsetWidth - inner.offsetWidth);
+
+		// Removing temporary elements from the DOM
+		outer.parentNode.removeChild(outer);
+
+		return scrollbarWidth;
+
 	}
 
 	modalTriggers.forEach(btn => {
@@ -133,5 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const modalTimerId = setTimeout(openModal, 5000);
 
-	const currentScroll = document.documentElement
+	const openModalByScroll = () => {
+		if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
+			openModal();
+			document.removeEventListener('scroll', openModalByScroll);
+		}
+	}
+
+	document.addEventListener('scroll', openModalByScroll);
+
+
 });
