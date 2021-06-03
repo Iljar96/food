@@ -244,7 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	forms.forEach(item => {
-		postData(item);
+		// postData(item);
+		bindPostData(item);
 	});
 
 	//XMLHttpRequest
@@ -336,8 +337,22 @@ document.addEventListener('DOMContentLoaded', () => {
 	// 	})
 	// }
 
+	//await ставится перед теми операциями, которые нужно дождаться - для того чтобы дождаться результата
+	const postData = async (url, data) => {
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-type': 'application/json'
+			},
+			body: data
+		});
+
+		return await res.json();
+
+	};
+
 	//fetch (JSON)
-	function postData(form) {
+	function bindPostData(form) {
 		form.addEventListener('submit', (e) => {
 			e.preventDefault();
 
@@ -351,20 +366,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const formData = new FormData(form);
 
-			const object = {}; // * -formData переобразуем в формат JSON
-			formData.forEach(function (value, key) {
-				object[key] = value;
-			});
+			// const object = {}; // * -formData переобразуем в формат JSON
+			// formData.forEach(function (value, key) {
+			// 	object[key] = value;
+			// });
 
+			const json = JSON.stringify(Object.fromEntries(formData.entries()));// * -formData переобразуем в формат JSON // entries() преобразует объект в матрицу, fromEntries() - наобарот
 
-			fetch('server.php', {
-				method: 'POST',
-				headers: {
-					'Content-type': 'application/json'
-				},
-				body: JSON.stringify(object)
-			})
-				.then(data => data.text()) // Ответ модифицируем
+			// fetch('server.php', {
+			// 	method: 'POST',
+			// 	headers: {
+			// 		'Content-type': 'application/json'
+			// 	},
+			// 	body: JSON.stringify(object)
+			// })
+			postData('http://localhost:3000/requests', json)
+				// .then(data => data.text()) // Ответ модифицируем
 				.then(data => {
 					console.log(data);
 					showThanksModal(message.success);
@@ -421,5 +438,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	// 	// .then(response => response.text())
 	// 	.then(response => response.json())
 	// 	.then(json => console.log(json));
+
+	fetch('http://localhost:3000/menu') //копируем путь с resources и вставляем его в fetch(...)
+		.then(data => data.json())
+		.then(res => console.log(res));
 
 });
