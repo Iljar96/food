@@ -166,6 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	document.addEventListener('scroll', openModalByScroll);
 
+	const getResource = async (url) => {
+		const res = await fetch(url);
+
+		//Избежание ошибок при fetch
+		//свойство ok - говорит о том, что мы что-то получили(ok), или не получили
+		//свойство status - там мы попадаем на тот статус, который вернул нам сервер (200-ok, 404- not found, 500...)
+		if (!res.ok) {
+			throw new Error(`Could not fetch ${url}, status: ${res.status}`); //Выкидываем новую ошибку
+		}
+
+		return await res.json();
+	};
+
 	//Используем классы для карточек
 	class MenuCard {
 		constructor(src, alt, title, text, price, parentSelector, ...classes) {
@@ -193,46 +206,95 @@ document.addEventListener('DOMContentLoaded', () => {
 			this.parent.insertAdjacentHTML('beforeend',
 				`
 				<div class="${this.classes.join(' ')} ">
-			<img src = "${this.src}" alt = "${this.alt}">
+					<img src = "${this.src}" alt = "${this.alt}">
 					<h3 class="menu__item-subtitle">${this.title}</h3>
-		<div class="menu__item-descr">${this.text}</div>
-		<div class="menu__item-divider"></div>
-		<div class="menu__item-price">
-			<div class="menu__item-cost">Цена:</div>
-			<div class="menu__item-total"><span>${this.price}</span> грн/день</div>
-		</div>
+					<div class="menu__item-descr">${this.text}</div>
+					<div class="menu__item-divider"></div>
+					<div class="menu__item-price">
+						<div class="menu__item-cost">Цена:</div>
+						<div class="menu__item-total"><span>${this.price}</span> грн/день</div>
+					</div>
 				</div >
 		`
 			)
 		}
 	}
 
-	new MenuCard(
-		'img/tabs/vegy.jpg',
-		'vegy',
-		'Меню "Фитнес"',
-		'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-		9,
-		'menu__field > .container',
-	).render();
-	const card2 = new MenuCard(
-		'img/tabs/elite.jpg',
-		'elite',
-		'Меню “Премиум',
-		'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-		14,
-		'menu__field > .container',
-	).render();
-	const card3 = new MenuCard(
-		'img/tabs/post.jpg',
-		'post',
-		'Меню "Постное"',
-		'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие	продуктов	животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-		20,
-		'menu__field > .container',
-		'test',
-		'test2'
-	).render();
+	//1-способ с классами
+	getResource('http://localhost:3000/menu')
+		.then(data => {
+			data.forEach(({ img, altimg, title, descr, price }) => {
+				new MenuCard(img, altimg, title, descr, price, 'menu__field > .container').render(); //Ltcnhernehbpfwbz
+			});
+		})
+
+	//====================
+	//2-способ без классов, формируем верстку на лету
+	// getResource('http://localhost:3000/menu')
+	// 	.then(data => createCard(data))
+
+	// function createCard(data) {
+	// 	data.forEach(({ img, altimg, title, descr, price }) => {
+	// 		const element = document.createElement('div');
+
+	// 		element.classList.add('menu__item');
+	// 		element.innerHTML = `
+	// 			<img src = "${img}" alt = "${altimg}">
+	// 			<h3 class="menu__item-subtitle">${title}</h3>
+	// 			<div class="menu__item-descr">${descr}</div>
+	// 			<div class="menu__item-divider"></div>
+	// 			<div class="menu__item-price">
+	// 				<div class="menu__item-cost">Цена:</div>
+	// 				<div class="menu__item-total"><span>${price * 27}</span> грн/день</div>
+	// 			</div>
+	// 		`;
+
+	// 		document.querySelector('.menu .container').append(element);
+	// 	});
+	// }
+	//====================
+	//3-способ с axios
+	//axios :
+	//-автоматическая трансформация в JSON при ненеобходимости
+	//- отмена запросов
+	//- промисы
+	//-посылает XMLHttpRequestы
+	//...
+	//Используеется, когда не хотим заниматься настройкой функций по получению, либо отправки каких-то данных, просто подключаем данную библиотеку и она делает все за нас
+	// axios.get('http://localhost:3000/menu')
+	// 	//data.data.forEach !!!! свойство объекта data
+	// 	.then(data => data.data.forEach(({ img, altimg, title, descr, price }) => {
+	// 		new MenuCard(img, altimg, title, descr, price, 'menu__field > .container').render(); //Ltcnhernehbpfwbz
+	// 	}))
+	//====================
+
+
+	// new MenuCard(
+	// 	'img/tabs/vegy.jpg',
+	// 	'vegy',
+	// 	'Меню "Фитнес"',
+	// 	'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+	// 	9,
+	// 	'menu__field > .container',
+	// ).render();
+	// const card2 = new MenuCard(
+	// 	'img/tabs/elite.jpg',
+	// 	'elite',
+	// 	'Меню “Премиум',
+	// 	'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+	// 	14,
+	// 	'menu__field > .container',
+	// ).render();
+	// const card3 = new MenuCard(
+	// 	'img/tabs/post.jpg',
+	// 	'post',
+	// 	'Меню "Постное"',
+	// 	'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие	продуктов	животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+	// 	20,
+	// 	'menu__field > .container',
+	// 	'test',
+	// 	'test2'
+	// ).render();
 
 	//Forms 
 	const forms = document.querySelectorAll('form');
@@ -348,7 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		return await res.json();
-
 	};
 
 	//fetch (JSON)
@@ -439,8 +500,131 @@ document.addEventListener('DOMContentLoaded', () => {
 	// 	.then(response => response.json())
 	// 	.then(json => console.log(json));
 
-	fetch('http://localhost:3000/menu') //копируем путь с resources и вставляем его в fetch(...)
-		.then(data => data.json())
-		.then(res => console.log(res));
+	//Slider==============================\
+	const slider = document.querySelector('.offer__slider'),
+		sliderBtnPrev = slider.querySelector('.offer__slider-prev'),
+		sliderBtnNext = slider.querySelector('.offer__slider-next'),
+		counterCurrent = slider.querySelector('#current'),
+		counterTotal = slider.querySelector('#total'),
+		sliderWrapper = slider.querySelector('.offer__slider-wrapper'),
+		sliderInner = slider.querySelector('.offer__slider-inner'),
+		sliderSlides = slider.querySelectorAll('.offer__slide'),
+		slidesMargin = 50;
+	let sliderWidth,
+		currentPosition = 0,
+		currentCounterIndex = 1,
+		dotsIndex = 0;
 
+	counterTotal.textContent = ('0' + sliderSlides.length).substr(-2);
+
+	sliderSlides[0].classList.add('_active');
+
+	const getSliderWidth = () => sliderWidth = sliderInner.clientWidth;
+
+	const setCurrentCounter = () => {
+		counterCurrent.textContent = ('0' + currentCounterIndex).substr(-2);
+	};
+
+	const addActiveClass = () => {
+		sliderSlides.forEach(slide => slide.classList.remove('_active'));
+		sliderSlides[currentCounterIndex - 1].classList.add('_active');
+	};
+
+	const createPagination = () => {
+		sliderWrapper.insertAdjacentHTML("beforeend",
+			`
+			<div class="carousel-indicators"></div>
+		`);
+		for (let i = 0; i < sliderSlides.length; i++) {
+			document.querySelector('.carousel-indicators')
+				.insertAdjacentHTML('beforeend',
+					`
+					<div class="dot" data-index=${dotsIndex++}></div>
+				`);
+		}
+		changeDotsActiveClass();
+	}
+
+	const changeDotsActiveClass = () => {
+		const dots = document.querySelectorAll('.dot');
+		dots.forEach(dot => dot.classList.remove('_active'));
+		dots[(currentCounterIndex - 1)].classList.add('_active');
+	};
+
+	const changeSlide = (i) => {
+		currentCounterIndex = i + 1;
+		currentPosition = sliderWidth * (i) + (slidesMargin * (i));
+		sliderInner.style.transform = `translate(${-currentPosition}px ,0)`;
+		console.log(currentPosition);
+		addActiveClass();
+		changeDotsActiveClass();
+		setCurrentCounter();
+	};
+
+	createPagination()
+
+	setCurrentCounter();
+
+	getSliderWidth();
+	window.addEventListener('resize', (e) => {
+		getSliderWidth();
+		if (currentPosition === 0) {
+			sliderInner.style.transform = `translate(0px ,0)`;
+		} else {
+			currentPosition = sliderWidth * (currentCounterIndex - 1) + (slidesMargin * (currentCounterIndex - 1));
+			sliderInner.style.transform = `translate(${-currentPosition}px ,0)`;
+		}
+
+	});
+
+	sliderInner.style.cssText = `
+		display:flex;
+		transition: all .8s ease;
+	`;
+	sliderWrapper.style.overflow = `hidden`;
+
+	sliderSlides.forEach((slide) => slide.style.flex = `0 0 100%`);
+	sliderSlides.forEach((slide) => slide.style.marginRight = `${slidesMargin}px`);
+
+	document.querySelector('.carousel-indicators').addEventListener('click', (e) => {
+		if (e.target.classList.contains('dot')) {
+			currentCounterIndex = +e.target.dataset.index + 1;
+			currentPosition = sliderWidth * (e.target.dataset.index) + (slidesMargin * (e.target.dataset.index));
+			sliderInner.style.transform = `translate(${-currentPosition}px ,0)`;
+			addActiveClass();
+			changeDotsActiveClass();
+			setCurrentCounter();
+		}
+	});
+
+	sliderBtnPrev.addEventListener('click', (e) => {
+		currentPosition += sliderWidth + slidesMargin;
+		currentCounterIndex -= 1;
+
+		if (currentPosition > 0) {
+			currentPosition = ((sliderSlides.length - 1) * (sliderWidth + slidesMargin) * -1);
+			currentCounterIndex = sliderSlides.length;
+		}
+		addActiveClass();
+		changeDotsActiveClass();
+		sliderInner.style.transform = `translate(${currentPosition}px ,0)`;
+		setCurrentCounter();
+	});
+	sliderBtnNext.addEventListener('click', (e) => {
+		currentPosition -= sliderWidth + slidesMargin;
+		currentCounterIndex += 1;
+
+		if (currentPosition <= (sliderSlides.length * sliderWidth * -1)) {
+			currentPosition = 0;
+			currentCounterIndex = 1;
+		}
+		addActiveClass();
+		changeDotsActiveClass();
+		sliderInner.style.transform = `translate(${currentPosition}px ,0)`;
+		setCurrentCounter();
+	});
+
+	//==============================
 });
+
+
