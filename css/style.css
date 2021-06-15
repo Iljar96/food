@@ -189,6 +189,7 @@ a {
 }
 .tabheader__item {
 	font-weight: 700;
+	height: 22px;
 	font-size: 18px;
 	font-weight: 300;
 	margin-top: 10px;
