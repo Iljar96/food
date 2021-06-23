@@ -88,7 +88,7 @@ function slider({ container, slide, nextArrow, prevArrow, totalCounter, currentC
 	document.querySelector('.carousel-indicators').addEventListener('click', (e) => {
 		if (e.target.classList.contains('dot')) {
 			currentCounterIndex = +e.target.dataset.index;
-			currentPosition = -1 * sliderWidth * (e.target.dataset.index) + (slidesMargin * (e.target.dataset.index));
+			currentPosition = -(sliderWidth * (e.target.dataset.index) + (slidesMargin * (e.target.dataset.index)));
 			sliderInner.style.transform = `translate(${currentPosition}px ,0)`;
 			addActiveClass();
 			changeDotsActiveClass();
