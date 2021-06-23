@@ -12,7 +12,7 @@ function slider({ container, slide, nextArrow, prevArrow, totalCounter, currentC
 
 	let sliderWidth,
 		currentPosition = 0,
-		currentCounterIndex = 1,
+		currentCounterIndex = 0,
 		dotsIndex = 0;
 
 	counterTotal.textContent = ('0' + sliderSlides.length).substr(-2);
@@ -22,12 +22,12 @@ function slider({ container, slide, nextArrow, prevArrow, totalCounter, currentC
 	const getSliderWidth = () => sliderWidth = sliderInner.clientWidth;
 
 	const setCurrentCounter = () => {
-		counterCurrent.textContent = ('0' + currentCounterIndex).substr(-2);
+		counterCurrent.textContent = ('0' + (currentCounterIndex + 1)).substr(-2);
 	};
 
 	const addActiveClass = () => {
 		sliderSlides.forEach(slide => slide.classList.remove('_active'));
-		sliderSlides[currentCounterIndex - 1].classList.add('_active');
+		sliderSlides[currentCounterIndex].classList.add('_active');
 	};
 
 	const createPagination = () => {
@@ -48,18 +48,17 @@ function slider({ container, slide, nextArrow, prevArrow, totalCounter, currentC
 	const changeDotsActiveClass = () => {
 		const dots = document.querySelectorAll('.dot');
 		dots.forEach(dot => dot.classList.remove('_active'));
-		dots[(currentCounterIndex - 1)].classList.add('_active');
+		dots[currentCounterIndex].classList.add('_active');
 	};
 
-	const changeSlide = (i) => {
-		currentCounterIndex = i + 1;
-		currentPosition = sliderWidth * (i) + (slidesMargin * (i));
-		sliderInner.style.transform = `translate(${-currentPosition}px ,0)`;
-		console.log(currentPosition);
-		addActiveClass();
-		changeDotsActiveClass();
-		setCurrentCounter();
-	};
+	// const changeSlide = (i) => {
+	// 	currentCounterIndex = i;
+	// 	currentPosition = sliderWidth * (i) + (slidesMargin * (i));
+	// 	sliderInner.style.transform = `translate(${-currentPosition}px ,0)`;
+	// 	addActiveClass();
+	// 	changeDotsActiveClass();
+	// 	setCurrentCounter();
+	// };
 
 	createPagination()
 
@@ -71,7 +70,7 @@ function slider({ container, slide, nextArrow, prevArrow, totalCounter, currentC
 		if (currentPosition === 0) {
 			sliderInner.style.transform = `translate(0px ,0)`;
 		} else {
-			currentPosition = sliderWidth * (currentCounterIndex - 1) + (slidesMargin * (currentCounterIndex - 1));
+			currentPosition = sliderWidth * currentCounterIndex + (slidesMargin * currentCounterIndex);
 			sliderInner.style.transform = `translate(${-currentPosition}px ,0)`;
 		}
 
@@ -88,9 +87,9 @@ function slider({ container, slide, nextArrow, prevArrow, totalCounter, currentC
 
 	document.querySelector('.carousel-indicators').addEventListener('click', (e) => {
 		if (e.target.classList.contains('dot')) {
-			currentCounterIndex = +e.target.dataset.index + 1;
-			currentPosition = sliderWidth * (e.target.dataset.index) + (slidesMargin * (e.target.dataset.index));
-			sliderInner.style.transform = `translate(${-currentPosition}px ,0)`;
+			currentCounterIndex = +e.target.dataset.index;
+			currentPosition = -1 * sliderWidth * (e.target.dataset.index) + (slidesMargin * (e.target.dataset.index));
+			sliderInner.style.transform = `translate(${currentPosition}px ,0)`;
 			addActiveClass();
 			changeDotsActiveClass();
 			setCurrentCounter();
@@ -101,22 +100,24 @@ function slider({ container, slide, nextArrow, prevArrow, totalCounter, currentC
 		currentPosition += sliderWidth + slidesMargin;
 		currentCounterIndex -= 1;
 
-		if (currentPosition > 0) {
+		if (currentPosition > 0 || currentCounterIndex < 0) {
+			currentCounterIndex = sliderSlides.length - 1;
 			currentPosition = ((sliderSlides.length - 1) * (sliderWidth + slidesMargin) * -1);
-			currentCounterIndex = sliderSlides.length;
+			currentCounterIndex = sliderSlides.length - 1;
 		}
 		addActiveClass();
 		changeDotsActiveClass();
 		sliderInner.style.transform = `translate(${currentPosition}px ,0)`;
 		setCurrentCounter();
 	});
+
 	sliderBtnNext.addEventListener('click', (e) => {
 		currentPosition -= sliderWidth + slidesMargin;
 		currentCounterIndex += 1;
 
-		if (currentPosition <= (sliderSlides.length * sliderWidth * -1)) {
+		if (currentPosition <= (sliderSlides.length * sliderWidth * -1) || currentCounterIndex > sliderSlides.length - 1) {
 			currentPosition = 0;
-			currentCounterIndex = 1;
+			currentCounterIndex = 0;
 		}
 		addActiveClass();
 		changeDotsActiveClass();
