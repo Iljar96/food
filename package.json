@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/Iljar96/food#readme",
   "devDependencies": {
-    "json-server": "^0.16.3"
+    "json-server": "^0.16.3",
+    "webpack": "^5.39.0"
+  },
+  "dependencies": {
+    "webpack-cli": "^4.7.2"
   }
 }
