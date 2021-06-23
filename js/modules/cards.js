@@ -43,9 +43,9 @@ function cards() {
 	}
 
 	//1-способ с классами
-	getResource('https://iljar96.github.io/food/db.json/menu')
+	getResource('https://iljar96.github.io/food/db.json')
 		.then(data => {
-			data.forEach(({ img, altimg, title, descr, price }) => {
+			data.menu.forEach(({ img, altimg, title, descr, price }) => {
 				new MenuCard(img, altimg, title, descr, price, 'menu__field > .container').render(); //Ltcnhernehbpfwbz
 			});
 		})
